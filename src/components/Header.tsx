@@ -1,18 +1,22 @@
 "use client";
 import React from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart";
 import { ShoppingCart } from "lucide-react";
 import type { JSX } from "react";
+import Image from "next/image";
 
 export default function Header(): JSX.Element {
   const { count } = useCart();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   return (
     <header className="w-full border-b border-white/5">
       <div className="container-page flex items-center justify-between py-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="inline-flex items-center">
-            <div className="h-6 w-16 rounded bg-black/80 dark:bg-white/80" />
+            <Image src="/logo.svg" alt="Burgerito" width={128} height={24} priority />
           </Link>
         </div>
         <div className="flex items-center gap-2">
@@ -23,7 +27,7 @@ export default function Header(): JSX.Element {
             title="Panier"
           >
             <ShoppingCart size={18} className="text-white" />
-            {count > 0 && (
+            {mounted && count > 0 && (
               <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#ef4444] text-white text-[10px] leading-[18px] text-center">
                 {count}
               </span>

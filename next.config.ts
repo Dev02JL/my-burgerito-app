@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "plus.unsplash.com" },
     ],
   },
+  transpilePackages: ["lucide-react"],
 };
 
 export default nextConfig;
