@@ -16,7 +16,7 @@ export default async function BurgerDetail({ params }: Params) {
   const base = process.env.NEXT_PUBLIC_API_BASE_URL;
   const listRes = await fetch(`${base}/api/products`, { next: { revalidate: 60 } });
   const listJson: unknown = listRes.ok ? await listRes.json().catch(() => ({ items: [] as unknown[] })) : ({ items: [] as unknown[] } as const);
-  type ApiProduct = { id?: string; _id?: string; name?: string; price?: number | string; imageUrl?: string };
+  type ApiProduct = { id?: string; _id?: string; name?: string; price?: number | string; imageUrl?: string; isAvailable?: boolean };
   const items: Array<ApiProduct> = Array.isArray(listJson)
     ? (listJson as Array<ApiProduct>)
     : ((listJson as { items?: unknown[] })?.items as Array<ApiProduct> | undefined) ?? [];
@@ -43,6 +43,7 @@ export default async function BurgerDetail({ params }: Params) {
     title: String(chosen!.name || titlePart.replace(/-/g, " ")).replace(/\b\w/g, (c) => c.toUpperCase()),
     price: priceStr,
     image,
+    available: (chosen as ApiProduct).isAvailable ?? true,
   };
 
   const suggestions: Product[] = items
@@ -57,6 +58,7 @@ export default async function BurgerDetail({ params }: Params) {
       image: typeof p.imageUrl === "string" && /^https?:\/\//.test(p.imageUrl)
         ? p.imageUrl
         : "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=800&auto=format&fit=crop",
+      available: p.isAvailable ?? true,
     }));
 
   return (
@@ -71,6 +73,11 @@ export default async function BurgerDetail({ params }: Params) {
       <div className="mt-6 grid grid-cols-1 md:grid-cols-[420px_1fr] gap-6">
         <div className="relative w-full h-[260px] md:h-[320px] overflow-hidden rounded-[16px] card">
           <Image src={product.image} alt={product.title} fill unoptimized className="object-cover" />
+          {product.available === false && (
+            <span className="absolute bottom-3 left-3 rounded-md bg-[#ef4444] text-white text-xs font-medium px-3 py-1 shadow">
+              Produit indisponible
+            </span>
+          )}
         </div>
         <div className="card p-5">
           <h2 className="text-lg font-semibold">Description</h2>
@@ -83,7 +90,16 @@ export default async function BurgerDetail({ params }: Params) {
             <div className="inline-flex items-center rounded-full bg-white px-3 py-1.5 text-sm font-medium text-black shadow">
               {product.price}
             </div>
-            <AddToCartButton id={product.id} title={product.title} price={priceNum} image={product.image} />
+            {product.available === false ? (
+              <button
+                className="h-9 rounded-full px-4 text-sm btn-accent font-medium opacity-50 pointer-events-none"
+                aria-disabled
+              >
+                Ajouter au panier
+              </button>
+            ) : (
+              <AddToCartButton id={product.id} title={product.title} price={priceNum} image={product.image} />
+            )}
           </div>
         </div>
       </div>

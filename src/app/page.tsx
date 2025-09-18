@@ -38,6 +38,7 @@ type ApiProduct = {
   prix?: number | string;
   imageUrl?: string;
   image?: string;
+  isAvailable?: boolean;
 };
 
 type ApiList = { items?: ApiProduct[] } | ApiProduct[];
@@ -71,6 +72,7 @@ export default async function Home() {
         title: toTitle(item),
         price: toPrice(item?.price ?? item?.prix),
         image: toImage(item),
+        available: item.isAvailable ?? true,
       }));
     } catch {
       return Array.from({ length: 8 }).map((_, i) => ({
