@@ -15,7 +15,7 @@ export default function ProductCard({ product }: { product: Product }): JSX.Elem
     <div className="card p-3">
       <Link href={`/burger/${slug}`} className="block group">
         <div className="relative h-[140px] w-full overflow-hidden rounded-[12px]">
-          <Image src={product.image} alt={product.title} fill className="object-cover transition-transform group-hover:scale-[1.02]" />
+          <Image src={product.image} alt={product.title} fill unoptimized className="object-cover transition-transform group-hover:scale-[1.02]" />
         </div>
         <div className="mt-3">
           <p className="text-sm leading-tight group-hover:underline">{product.title}</p>

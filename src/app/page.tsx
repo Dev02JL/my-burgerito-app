@@ -29,13 +29,59 @@ function Hero() {
 
  
 
-export default function Home() {
-  const products: Product[] = Array.from({ length: 8 }).map((_, i) => ({
-    id: i + 1,
-    title: "Lorem ipsum",
-    price: "€7,90",
-    image: "https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop",
-  }));
+type ApiProduct = {
+  id?: number | string;
+  _id?: string;
+  name?: string;
+  title?: string;
+  price?: number | string;
+  prix?: number | string;
+  imageUrl?: string;
+  image?: string;
+};
+
+type ApiList = { items?: ApiProduct[] } | ApiProduct[];
+
+export default async function Home() {
+  async function fetchBurgers(): Promise<Product[]> {
+    try {
+      const res = await fetch("https://node-eemi.vercel.app/api/products", { next: { revalidate: 60 } });
+      if (!res.ok) throw new Error("Bad response");
+      const data: ApiList = await res.json();
+      const list: ApiProduct[] = Array.isArray(data) ? data : (data?.items ?? []);
+      const toPrice = (value: unknown): string => {
+        const num = typeof value === "number" ? value : Number(value);
+        if (!isFinite(num)) return "€7,90";
+        const formatted = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+        return `€${formatted}`;
+      };
+      const toTitle = (item: ApiProduct): string => item?.name ?? item?.title ?? "Burger";
+      const toImage = (item: ApiProduct): string => {
+        const url = typeof item?.imageUrl === "string" ? item.imageUrl : (typeof item?.image === "string" ? item.image : "");
+        return /^https?:\/\//.test(url)
+          ? url
+          : "https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop";
+      };
+
+      return list.map((item: ApiProduct, idx: number) => ({
+        id: Number(item?.id ?? item?._id),
+        // Assure un id numérique pour ProductCard; fallback à l'index si NaN
+        ...(Number.isFinite(Number(item?.id ?? item?._id)) ? {} : { id: idx + 1 }),
+        title: toTitle(item),
+        price: toPrice(item?.price ?? item?.prix),
+        image: toImage(item),
+      }));
+    } catch {
+      return Array.from({ length: 8 }).map((_, i) => ({
+        id: i + 1,
+        title: "Lorem ipsum",
+        price: "€7,90",
+        image: "https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop",
+      }));
+    }
+  }
+
+  const products = await fetchBurgers();
 
   return (
     <div className="min-h-screen">
