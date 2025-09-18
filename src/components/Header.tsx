@@ -6,11 +6,57 @@ import { useCart } from "@/lib/cart";
 import { ShoppingCart } from "lucide-react";
 import type { JSX } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Header(): JSX.Element {
+  const router = useRouter();
   const { count } = useCart();
   const [mounted, setMounted] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    async function updateUser() {
+      const token = typeof window !== "undefined" ? localStorage.getItem("auth.token") : null;
+      if (!token) {
+        setUserName(null);
+        return;
+      }
+      try {
+        const res = await fetch("https://node-eemi.vercel.app/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
+        if (res.status === 401 || res.status === 403) {
+          try { localStorage.removeItem("auth.token"); } catch {}
+          setUserName(null);
+          return;
+        }
+        if (!res.ok) {
+          if (process.env.NODE_ENV !== "production") console.warn("/auth/me a échoué:", res.status);
+          return;
+        }
+        const data: { user?: { name?: string } } = await res.json().catch(() => ({} as any));
+        if (data?.user?.name) setUserName(data.user.name);
+      } catch (err) {
+        if (process.env.NODE_ENV !== "production") console.warn("/auth/me erreur réseau:", err);
+      }
+    }
+
+    updateUser();
+    const onAuthChanged = () => { void updateUser(); };
+    window.addEventListener("auth:changed", onAuthChanged);
+    return () => window.removeEventListener("auth:changed", onAuthChanged);
+  }, []);
+
+  function logout() {
+    try {
+      localStorage.removeItem("auth.token");
+    } catch {}
+    setUserName(null);
+    window.dispatchEvent(new Event("auth:changed"));
+    router.refresh();
+  }
   return (
     <header className="w-full border-b border-white/5">
       <div className="container-page flex items-center justify-between py-4">
@@ -33,16 +79,29 @@ export default function Header(): JSX.Element {
               </span>
             )}
           </Link>
-          <Link
-            href="/inscription"
-            className="h-9 rounded-md px-4 text-sm inline-flex items-center transition
-                       bg-white/20 text-white hover:bg-white/30"
-          >
-            Inscription
-          </Link>
-          <Link href="/connexion" className="h-9 rounded-md px-4 text-sm btn-accent font-medium inline-flex items-center">
-            Connexion
-          </Link>
+          {userName ? (
+            <div className="flex items-center gap-2">
+              <div className="h-9 rounded-md px-3 text-sm inline-flex items-center bg-white/10 text-white">
+                {userName}
+              </div>
+              <button onClick={logout} className="h-9 rounded-md px-3 text-sm inline-flex items-center transition bg-white/20 text-white hover:bg-white/30">
+                Déconnexion
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/inscription"
+                className="h-9 rounded-md px-4 text-sm inline-flex items-center transition
+                           bg-white/20 text-white hover:bg-white/30"
+              >
+                Inscription
+              </Link>
+              <Link href="/connexion" className="h-9 rounded-md px-4 text-sm btn-accent font-medium inline-flex items-center">
+                Connexion
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

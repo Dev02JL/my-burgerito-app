@@ -1,11 +1,50 @@
+"use client";
+
+import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+
 export default function ConnexionPage() {
+  const router = useRouter();
+  const formRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [ok, setOk] = useState(false);
+
+  async function submit() {
+    setError(null);
+    setOk(false);
+    setLoading(true);
+    const root = formRef.current;
+    const payload = {
+      email: String(root?.querySelector<HTMLInputElement>("#login-email")?.value || "").trim(),
+      password: String(root?.querySelector<HTMLInputElement>("#login-password")?.value || ""),
+    };
+    try {
+      const res = await fetch("https://node-eemi.vercel.app/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || "Connexion échouée");
+      if (data?.token) localStorage.setItem("auth.token", data.token);
+      // prévenir le Header que l'auth a changé
+      if (typeof window !== "undefined") window.dispatchEvent(new Event("auth:changed"));
+      setOk(true);
+      setTimeout(() => router.push("/"), 500);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erreur inattendue");
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <main className="container-page py-16">
       <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight text-center" style={{ fontFamily: "var(--font-display)" }}>
         Je me connecte
       </h1>
 
-      <form className="mx-auto mt-10 w-full max-w-3xl">
+      <div className="mx-auto mt-10 w-full max-w-3xl" ref={formRef}>
         <div className="flex flex-col gap-4">
           <label className="sr-only" htmlFor="login-email">E-mail</label>
           <input
@@ -32,9 +71,13 @@ export default function ConnexionPage() {
           />
         </div>
         <div className="flex justify-center">
-          <button type="submit" className="mt-8 h-12 w-[360px] rounded-[12px] btn-accent font-medium">Connexion</button>
+          <button type="button" onClick={submit} disabled={loading} className="mt-8 h-12 w-[360px] rounded-[12px] btn-accent font-medium disabled:opacity-60">
+            {loading ? "En cours..." : "Connexion"}
+          </button>
         </div>
-      </form>
+        {error ? <p className="mt-4 text-center text-red-400 text-sm">{error}</p> : null}
+        {ok ? <p className="mt-4 text-center text-green-400 text-sm">Connecté ! Redirection...</p> : null}
+      </div>
     </main>
   );
 }
