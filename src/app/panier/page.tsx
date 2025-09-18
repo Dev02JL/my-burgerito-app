@@ -35,7 +35,7 @@ export default function PanierPage() {
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="relative h-16 w-16 overflow-hidden rounded-md">
-                    <Image src={it.image} alt={it.title} fill className="object-cover" />
+                    <Image src={it.image} alt={it.title} fill unoptimized className="object-cover" />
                   </div>
                   <div className="leading-tight">
                     <div className="text-base font-medium">{it.title}</div>

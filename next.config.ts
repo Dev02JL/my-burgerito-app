@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "node-eemi.vercel.app" },
       { protocol: "http", hostname: "localhost" },
       { protocol: "https", hostname: "localhost" },
+      // Vercel Blob public storage (images distantes ajoutées dynamiquement)
+      { protocol: "https", hostname: "**.public.blob.vercel-storage.com" },
     ],
   },
   transpilePackages: ["lucide-react"],

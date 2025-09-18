@@ -23,7 +23,8 @@ export default function Header(): JSX.Element {
         return;
       }
       try {
-        const res = await fetch("https://node-eemi.vercel.app/api/auth/me", {
+        const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+        const res = await fetch(`${base}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store",
         });
@@ -36,7 +37,8 @@ export default function Header(): JSX.Element {
           if (process.env.NODE_ENV !== "production") console.warn("/auth/me a échoué:", res.status);
           return;
         }
-        const data: { user?: { name?: string } } = await res.json().catch(() => ({} as any));
+        type MeResponse = { user?: { name?: string } };
+        const data: MeResponse = await res.json().catch(() => ({}) as MeResponse);
         if (data?.user?.name) setUserName(data.user.name);
       } catch (err) {
         if (process.env.NODE_ENV !== "production") console.warn("/auth/me erreur réseau:", err);

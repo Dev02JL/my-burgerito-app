@@ -45,7 +45,8 @@ type ApiList = { items?: ApiProduct[] } | ApiProduct[];
 export default async function Home() {
   async function fetchBurgers(): Promise<Product[]> {
     try {
-      const res = await fetch("https://node-eemi.vercel.app/api/products", { next: { revalidate: 60 } });
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const res = await fetch(`${base}/api/products`, { next: { revalidate: 60 } });
       if (!res.ok) throw new Error("Bad response");
       const data: ApiList = await res.json();
       const list: ApiProduct[] = Array.isArray(data) ? data : (data?.items ?? []);

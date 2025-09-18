@@ -20,7 +20,8 @@ export default function ConnexionPage() {
       password: String(root?.querySelector<HTMLInputElement>("#login-password")?.value || ""),
     };
     try {
-      const res = await fetch("https://node-eemi.vercel.app/api/auth/login", {
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || "https://node-eemi.vercel.app";
+      const res = await fetch(`${base}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
