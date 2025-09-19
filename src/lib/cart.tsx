@@ -15,6 +15,7 @@ type CartState = { items: CartItem[] };
 type Action =
   | { type: "ADD"; item: Omit<CartItem, "qty">; qty?: number }
   | { type: "REMOVE"; id: number }
+  | { type: "SET_QTY"; id: number; qty: number }
   | { type: "CLEAR" };
 
 function cartReducer(state: CartState, action: Action): CartState {
@@ -33,6 +34,15 @@ function cartReducer(state: CartState, action: Action): CartState {
         items: [...state.items, { ...action.item, qty: qtyToAdd }],
       };
     }
+    case "SET_QTY": {
+      const nextQty = Math.max(0, Math.floor(action.qty));
+      if (nextQty === 0) {
+        return { items: state.items.filter((i) => i.id !== action.id) };
+      }
+      return {
+        items: state.items.map((i) => (i.id === action.id ? { ...i, qty: nextQty } : i)),
+      };
+    }
     case "REMOVE": {
       return { items: state.items.filter((i) => i.id !== action.id) };
     }
@@ -46,6 +56,7 @@ function cartReducer(state: CartState, action: Action): CartState {
 const CartContext = createContext<
   | (CartState & {
       add: (item: Omit<CartItem, "qty">, qty?: number) => void;
+      updateQty: (id: number, qty: number) => void;
       remove: (id: number) => void;
       clear: () => void;
       total: number;
@@ -75,11 +86,12 @@ export function CartProvider({ children }: { children: React.ReactNode }): JSX.E
 
   const api = useMemo(() => {
     const add = (item: Omit<CartItem, "qty">, qty?: number) => dispatch({ type: "ADD", item, qty });
+    const updateQty = (id: number, qty: number) => dispatch({ type: "SET_QTY", id, qty });
     const remove = (id: number) => dispatch({ type: "REMOVE", id });
     const clear = () => dispatch({ type: "CLEAR" });
     const total = state.items.reduce((sum, i) => sum + i.price * i.qty, 0);
     const count = state.items.reduce((sum, i) => sum + i.qty, 0);
-    return { ...state, add, remove, clear, total, count };
+    return { ...state, add, updateQty, remove, clear, total, count };
   }, [state]);
 
   return <CartContext.Provider value={api}>{children}</CartContext.Provider>;

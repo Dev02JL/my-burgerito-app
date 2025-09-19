@@ -55,7 +55,6 @@ export default function ProfilePage() {
         const data: { items?: Array<{ id: string; createdAt: string; total: number }> } = await res.json();
         const list = data.items ?? [];
 
-        // Charger les items pour chaque commande en parallèle
         const withItems: OrderWithItems[] = await Promise.all(
           list.map(async (o) => {
             const itemsRes = await fetch(`${base}/api/orders/${o.id}/items`, {

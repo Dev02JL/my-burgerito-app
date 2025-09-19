@@ -15,7 +15,10 @@ export default function AddToCartButton({ id, title, price, image }: Props): JSX
   const { add } = useCart();
   return (
     <button
-      onClick={() => add({ id, title, price, image })}
+      onClick={() => {
+        add({ id, title, price, image });
+        if (typeof window !== "undefined") window.dispatchEvent(new Event("cart:added"));
+      }}
       className="h-9 rounded-full px-4 text-sm btn-accent font-medium"
     >
       Ajouter au panier
