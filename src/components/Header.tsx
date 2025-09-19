@@ -83,9 +83,9 @@ export default function Header(): JSX.Element {
           </Link>
           {userName ? (
             <div className="flex items-center gap-2">
-              <div className="h-9 rounded-md px-3 text-sm inline-flex items-center bg-white/10 text-white">
+              <Link href="/profile" className="h-9 rounded-md px-3 text-sm inline-flex items-center bg-white/10 text-white hover:bg-white/20 transition" title="Voir mon profil">
                 {userName}
-              </div>
+              </Link>
               <button onClick={logout} className="h-9 rounded-md px-3 text-sm inline-flex items-center transition bg-white/20 text-white hover:bg-white/30">
                 Déconnexion
               </button>
