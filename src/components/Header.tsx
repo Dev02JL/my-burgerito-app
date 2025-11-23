@@ -20,19 +20,9 @@ export default function Header(): JSX.Element {
 
   useEffect(() => {
     async function updateUser() {
-      const token = typeof window !== "undefined" ? localStorage.getItem("auth.token") : null;
-      if (!token) {
-        setUserName(null);
-        return;
-      }
       try {
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const res = await fetch(`${base}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-          cache: "no-store",
-        });
+        const res = await fetch(`/api/session/me`, { cache: "no-store" });
         if (res.status === 401 || res.status === 403) {
-          try { localStorage.removeItem("auth.token"); } catch {}
           setUserName(null);
           return;
         }
@@ -40,9 +30,10 @@ export default function Header(): JSX.Element {
           if (process.env.NODE_ENV !== "production") console.warn("/auth/me a échoué:", res.status);
           return;
         }
-        type MeResponse = { user?: { name?: string } };
+        type MeResponse = { user?: { name?: string } } | { name?: string };
         const data: MeResponse = await res.json().catch(() => ({}) as MeResponse);
-        if (data?.user?.name) setUserName(data.user.name);
+        if ((data as any)?.user?.name) setUserName((data as any).user.name);
+        else if ((data as any)?.name) setUserName((data as any).name);
       } catch (err) {
         if (process.env.NODE_ENV !== "production") console.warn("/auth/me erreur réseau:", err);
       }
@@ -65,12 +56,11 @@ export default function Header(): JSX.Element {
   }, []);
 
   function logout() {
-    try {
-      localStorage.removeItem("auth.token");
-    } catch {}
-    setUserName(null);
-    window.dispatchEvent(new Event("auth:changed"));
-    router.refresh();
+    fetch("/api/session/logout", { method: "POST" }).finally(() => {
+      setUserName(null);
+      window.dispatchEvent(new Event("auth:changed"));
+      router.refresh();
+    });
   }
   return (
     <header className="w-full border-b border-white/5">
@@ -88,7 +78,6 @@ export default function Header(): JSX.Element {
               aria-label="Ouvrir le panier"
               title="Panier"
               onClick={(e) => {
-                // toggle mini cart without preventing navigation if cmd/ctrl
                 if (!(e.metaKey || e.ctrlKey)) {
                   e.preventDefault();
                   setIsMiniCartOpen((v) => !v);

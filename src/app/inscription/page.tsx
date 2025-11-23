@@ -21,15 +21,13 @@ export default function InscriptionPage() {
       password: String(root?.querySelector<HTMLInputElement>("#register-password")?.value || ""),
     };
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const res = await fetch(`${base}/api/auth/register`, {
+      const res = await fetch(`/api/session/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.message || "Inscription échouée");
-      if (data?.token) localStorage.setItem("auth.token", data.token);
       if (typeof window !== "undefined") window.dispatchEvent(new Event("auth:changed"));
       setOk(true);
       setTimeout(() => router.push("/"), 800);

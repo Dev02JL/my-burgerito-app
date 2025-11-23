@@ -99,7 +99,6 @@ export default function ChatSupport(): JSX.Element {
 
 useEffect(() => {
 	if (!open) return;
-	// focus champ à l'ouverture
 	requestAnimationFrame(() => inputRef.current?.focus());
 	void ensureSocket();
 }, [open, ensureSocket]);

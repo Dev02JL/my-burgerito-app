@@ -20,16 +20,13 @@ export default function ConnexionPage() {
       password: String(root?.querySelector<HTMLInputElement>("#login-password")?.value || ""),
     };
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || "https://node-eemi.vercel.app";
-      const res = await fetch(`${base}/api/auth/login`, {
+      const res = await fetch(`/api/session/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.message || "Connexion échouée");
-      if (data?.token) localStorage.setItem("auth.token", data.token);
-      // prévenir le Header que l'auth a changé
       if (typeof window !== "undefined") window.dispatchEvent(new Event("auth:changed"));
       setOk(true);
       setTimeout(() => router.push("/"), 500);

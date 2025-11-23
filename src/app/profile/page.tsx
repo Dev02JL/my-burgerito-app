@@ -37,30 +37,18 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("auth.token") : null;
-    if (!token) {
-      setOrders([]);
-      return;
-    }
-
-    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const base = "";
 
     async function load() {
       try {
-        const res = await fetch(`${base}/api/orders/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-          cache: "no-store",
-        });
+        const res = await fetch(`/api/proxy/orders/me`, { cache: "no-store" });
         if (!res.ok) throw new Error(`Erreur ${res.status}`);
         const data: { items?: Array<{ id: string; createdAt: string; total: number }> } = await res.json();
         const list = data.items ?? [];
 
         const withItems: OrderWithItems[] = await Promise.all(
           list.map(async (o) => {
-            const itemsRes = await fetch(`${base}/api/orders/${o.id}/items`, {
-              headers: { Authorization: `Bearer ${token}` },
-              cache: "no-store",
-            });
+            const itemsRes = await fetch(`/api/proxy/orders/${o.id}/items`, { cache: "no-store" });
             const itemsData: { items?: PopulatedItem[] } = itemsRes.ok ? await itemsRes.json() : { items: [] };
             return { id: o.id, createdAt: o.createdAt, total: o.total, items: itemsData.items ?? [] };
           })

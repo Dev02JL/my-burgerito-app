@@ -22,8 +22,8 @@ export default function PanierPage() {
     setLoading(true);
     setError(null);
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("auth.token") : null;
-      if (!token) throw new Error("Vous devez être connecté");
+      const me = await fetch(`/api/session/me`, { cache: "no-store" });
+      if (!me.ok) throw new Error("Vous devez être connecté");
       const base = process.env.NEXT_PUBLIC_API_BASE_URL;
 
       const res = await fetch(`${base}/api/products`, { cache: "no-store" });
@@ -47,14 +47,7 @@ export default function PanierPage() {
 
       if (apiItems.length === 0) throw new Error("Aucun article valide");
 
-      const create = await fetch(`${base}/api/orders`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ items: apiItems }),
-      });
+      const create = await fetch(`/api/orders/create`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: apiItems }) });
       if (!create.ok) throw new Error(`Erreur commande ${create.status}`);
 
       clear();

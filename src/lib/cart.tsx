@@ -71,7 +71,8 @@ export function CartProvider({ children }: { children: React.ReactNode }): JSX.E
   const [state, dispatch] = useReducer(cartReducer, undefined, () => {
     if (typeof window === "undefined") return { items: [] } as CartState;
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
+      const cookie = document.cookie.split("; ").find((c) => c.startsWith(`${STORAGE_KEY}=`));
+      const raw = cookie ? decodeURIComponent(cookie.split("=")[1] ?? "") : "";
       return raw ? (JSON.parse(raw) as CartState) : { items: [] };
     } catch {
       return { items: [] };
@@ -80,7 +81,9 @@ export function CartProvider({ children }: { children: React.ReactNode }): JSX.E
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const value = encodeURIComponent(JSON.stringify(state));
+      const maxAge = 60 * 60 * 24 * 7; // 7 jours
+      document.cookie = `${STORAGE_KEY}=${value}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
     } catch {}
   }, [state]);
 
@@ -102,5 +105,3 @@ export function useCart() {
   if (!ctx) throw new Error("useCart must be used within CartProvider");
   return ctx;
 }
-
-

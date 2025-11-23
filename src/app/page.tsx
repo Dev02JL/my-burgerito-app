@@ -67,7 +67,6 @@ export default async function Home() {
 
       return list.map((item: ApiProduct, idx: number) => ({
         id: Number(item?.id ?? item?._id),
-        // Assure un id numérique pour ProductCard; fallback à l'index si NaN
         ...(Number.isFinite(Number(item?.id ?? item?._id)) ? {} : { id: idx + 1 }),
         title: toTitle(item),
         price: toPrice(item?.price ?? item?.prix),
