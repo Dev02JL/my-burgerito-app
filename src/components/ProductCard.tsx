@@ -38,10 +38,13 @@ export default function ProductCard({ product }: { product: Product }): JSX.Elem
           <Info size={16} className="text-white/80" />
         </Link>
         <button
+          type="button"
           onClick={() => {
             add({ id: product.id, title: product.title, price: parseFloat(product.price.replace(/[€\s,]/g, (m) => (m === "," ? "." : ""))), image: product.image });
             if (typeof window !== "undefined") window.dispatchEvent(new Event("cart:added"));
           }}
+          disabled={product.available === false}
+          aria-disabled={product.available === false}
           className={`h-8 rounded-md px-3 text-xs btn-accent font-medium ${product.available === false ? "opacity-50 pointer-events-none" : ""}`}
         >
           Ajouter au panier

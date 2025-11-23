@@ -42,6 +42,7 @@ export default function ChatSupport(): JSX.Element {
 	const initedRef = useRef<boolean>(false);
 	const name = useLocalName();
 	const listRef = useRef<HTMLDivElement>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
 	const isOnline =
 		Boolean(wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED) ||
 		messages.length > 0 ||
@@ -96,10 +97,12 @@ export default function ChatSupport(): JSX.Element {
 		}
 	}, [url]);
 
-	useEffect(() => {
-		if (!open) return;
-		void ensureSocket();
-	}, [open, ensureSocket]);
+useEffect(() => {
+	if (!open) return;
+	// focus champ à l'ouverture
+	requestAnimationFrame(() => inputRef.current?.focus());
+	void ensureSocket();
+}, [open, ensureSocket]);
 
 	useEffect(() => {
 		if (!listRef.current) return;
@@ -156,24 +159,25 @@ export default function ChatSupport(): JSX.Element {
 							<div className="font-semibold">Support Burgerito</div>
 							<div className="text-white/60">{isOnline ? "En ligne" : "Hors ligne"}</div>
 						</div>
-						<button className="h-8 w-8 rounded-md bg-white/10 hover:bg-white/20" onClick={() => setOpen(false)} aria-label="Fermer">
+						<button type="button" className="h-8 w-8 rounded-md bg-white/10 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-ring)]" onClick={() => setOpen(false)} aria-label="Fermer la fenêtre de chat">
 							<X size={16} className="mx-auto" />
 						</button>
 					</div>
 
 					<div className="px-3 py-2 border-b border-white/10 flex items-center gap-2">
-						<label className="text-xs text-white/70">Canal</label>
+						<label className="text-xs text-white/70" htmlFor="chat-channel">Canal</label>
 						<select
+							id="chat-channel"
 							value={channel}
 							onChange={(e) => setChannel(e.target.value as "general" | "support")}
-							className="h-8 rounded-md bg-white/10 px-2 text-xs"
+							className="h-8 rounded-md bg-white/10 px-2 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-ring)]"
 						>
 							<option value="support">Support</option>
 							<option value="general">Général</option>
 						</select>
 					</div>
 
-					<div ref={listRef} className="h-[260px] overflow-y-auto p-3 flex flex-col gap-2">
+					<div ref={listRef} className="h-[260px] overflow-y-auto p-3 flex flex-col gap-2" role="log" aria-live="polite" aria-relevant="additions">
 						{messages.length === 0 ? (
 							<div className="text-sm text-white/60">Démarrez la conversation…</div>
 						) : (
@@ -190,15 +194,18 @@ export default function ChatSupport(): JSX.Element {
 
 					<div className="p-3 flex items-center gap-2">
 						<input
+							ref={inputRef}
 							value={input}
 							onChange={(e) => setInput(e.target.value)}
 							onKeyDown={(e) => {
 								if (e.key === "Enter") send();
 							}}
 							placeholder="Votre message…"
-							className="flex-1 h-10 rounded-md bg-white/10 px-3 text-sm outline-none"
+							aria-label="Saisir votre message"
+							className="flex-1 h-10 rounded-md bg-white/10 px-3 text-sm outline-none focus:ring-2 focus:ring-[var(--color-ring)]"
 						/>
 						<button
+							type="button"
 							onClick={send}
 							disabled={!input.trim()}
 							className={`h-10 w-10 rounded-md inline-flex items-center justify-center btn-accent ${

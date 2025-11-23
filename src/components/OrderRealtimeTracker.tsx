@@ -51,7 +51,7 @@ export default function OrderRealtimeTracker({ orderId }: Props): JSX.Element {
 	const steps: StateKey[] = ["preparation", "cuisson", "prete", "livree"];
 
 	return (
-		<div className="container-page py-10">
+    <div className="container-page py-10" role="region" aria-live="polite" aria-atomic="true">
 			<h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-display)", color: "#ffffff" }}>
 				Suivi de commande
 			</h1>

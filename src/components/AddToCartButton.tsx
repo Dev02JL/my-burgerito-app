@@ -15,6 +15,8 @@ export default function AddToCartButton({ id, title, price, image }: Props): JSX
   const { add } = useCart();
   return (
     <button
+      type="button"
+      aria-label={`Ajouter ${title} au panier`}
       onClick={() => {
         add({ id, title, price, image });
         if (typeof window !== "undefined") window.dispatchEvent(new Event("cart:added"));
