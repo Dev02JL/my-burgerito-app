@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Burgerito – Frontend (Next.js 15 + React 19)
 
-## Getting Started
+Application e-commerce simple (catalogue burgers, panier, auth et commandes) connectée à une API Node.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Prérequis
+- Node 18+
+- Créez un fichier `.env.local` à la racine avec:
+```
+NEXT_PUBLIC_API_BASE_URL=https://node-eemi.vercel.app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Démarrer en local
+```bash
+npm install
+npm run dev
+# http://localhost:3000
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Scripts utiles
+- `npm run dev`: lancement en développement
+- `npm run build && npm start`: build et exécution en production
+- `npm run lint`: lint
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Fonctionnalités principales
+- Catalogue produits (fetch serveur, ISR)
+- Détail produit (fetch serveur) avec badge “indisponible”
+- Panier client (mini-panier sous l’icône, modification des quantités, total)
+- Authentification (register/login) via l’API puis affichage du nom + déconnexion
+- Profil: historique de commandes (groupé par date)
+- Commande: création d’une commande via `POST /api/orders`
 
-## Learn More
+### Structure (extraits)
+- `src/app/page.tsx`: page d’accueil (catalogue)
+- `src/app/burger/[slug]/page.tsx`: détail d’un produit
+- `src/app/panier/page.tsx`: panier complet
+- `src/app/profile/page.tsx`: historique des commandes
+- `src/components/MiniCart.tsx`: mini-panier
+- `src/lib/cart.tsx`: contexte panier (`add`, `updateQty`, `remove`, `clear`)
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Notes
+- Les images distantes utilisent `next/image` (domaine blob autorisé). En cas d’erreur domaine, utilisez `unoptimized` ou ajoutez le domaine dans `next.config.ts`.
+- L’API attend des IDs MongoDB pour créer une commande. Le panier mappe automatiquement le nom → id via `/api/products`.

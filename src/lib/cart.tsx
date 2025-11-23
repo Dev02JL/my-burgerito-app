@@ -6,7 +6,7 @@ import type { JSX } from "react";
 export type CartItem = {
   id: number;
   title: string;
-  price: number; // euros
+  price: number;
   image: string;
   qty: number;
 };

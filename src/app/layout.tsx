@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { CartProvider } from "@/lib/cart";
+import ChatSupport from "@/components/ChatSupport";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +46,7 @@ export default function RootLayout({
         <CartProvider>
           <Header />
           {children}
+          <ChatSupport />
         </CartProvider>
       </body>
     </html>

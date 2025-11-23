@@ -58,7 +58,12 @@ export default function PanierPage() {
       if (!create.ok) throw new Error(`Erreur commande ${create.status}`);
 
       clear();
-      router.push("/commande/prete");
+      let createdId = "demo";
+      try {
+        const created = await create.json();
+        createdId = String(created?.id ?? created?.order?.id ?? created?._id ?? "demo");
+      } catch {}
+      router.push(`/commande/suivi/${encodeURIComponent(createdId)}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur inattendue");
     } finally {
