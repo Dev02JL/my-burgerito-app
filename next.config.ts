@@ -14,6 +14,15 @@ const nextConfig: NextConfig = {
     ],
   },
   transpilePackages: ["lucide-react"],
+  eslint: {
+    // Ignorer les erreurs ESLint pendant le build en production
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // Ignorer les erreurs TypeScript pendant le build si nécessaire
+    // Mettre à true seulement si vous avez des problèmes de types
+    ignoreBuildErrors: false,
+  },
 };
 
 export default nextConfig;

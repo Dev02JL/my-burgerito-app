@@ -1,0 +1,12 @@
+# Fichiers sensibles à ne pas committer
+*.pem
+*.key
+secrets.yml
+vault.yml
+.env
+.ansible_vault
+
+# Fichiers temporaires
+*.retry
+*.log
+

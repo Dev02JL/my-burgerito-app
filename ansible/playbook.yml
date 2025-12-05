@@ -1,0 +1,194 @@
+---
+- name: Déployer l'application Next.js Burgerito
+  hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Mettre à jour le cache apt
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+    - name: Installer les dépendances système
+      apt:
+        name:
+          - curl
+          - git
+          - build-essential
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Vérifier si Node.js est installé
+      command: which node
+      register: node_check
+      changed_when: false
+      failed_when: false
+
+    - name: Installer Node.js 18.x via NodeSource
+      shell: |
+        curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+        apt-get install -y nodejs
+      when: 
+        - ansible_os_family == "Debian"
+        - node_check.rc != 0
+
+    - name: Vérifier la version de Node.js
+      command: node --version
+      register: node_version
+      changed_when: false
+
+    - name: Afficher la version de Node.js
+      debug:
+        msg: "Node.js version: {{ node_version.stdout }}"
+
+    - name: Installer PM2 globalement
+      npm:
+        name: pm2
+        global: yes
+        state: present
+
+    - name: Créer le répertoire de l'application
+      file:
+        path: "{{ app_directory }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+      become: yes
+
+    - name: Cloner le repository Git
+      git:
+        repo: "{{ git_repository }}"
+        dest: "{{ app_directory }}"
+        version: "{{ git_branch }}"
+        update: yes
+        force: yes
+      when: deployment_method == "git"
+
+    - name: Créer un archive temporaire local
+      shell: |
+        cd {{ local_app_path }}
+        tar -czf /tmp/burgerito-app.tar.gz \
+          --exclude='.git' \
+          --exclude='node_modules' \
+          --exclude='.next' \
+          --exclude='.env.local' \
+          --exclude='ansible' \
+          --exclude='._*' \
+          --exclude='.DS_Store' \
+          .
+      when: deployment_method == "rsync"
+      delegate_to: localhost
+      become: no
+      connection: local
+
+    - name: Copier l'archive vers le serveur
+      copy:
+        src: "/tmp/burgerito-app.tar.gz"
+        dest: "/tmp/burgerito-app.tar.gz"
+        mode: '0644'
+      when: deployment_method == "rsync"
+
+    - name: Extraire l'archive sur le serveur
+      unarchive:
+        src: "/tmp/burgerito-app.tar.gz"
+        dest: "{{ app_directory }}"
+        remote_src: yes
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+      when: deployment_method == "rsync"
+
+    - name: Nettoyer l'archive temporaire
+      file:
+        path: "/tmp/burgerito-app.tar.gz"
+        state: absent
+      when: deployment_method == "rsync"
+
+    - name: Créer le fichier .env.local
+      template:
+        src: env.local.j2
+        dest: "{{ app_directory }}/.env.local"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0600'
+
+    - name: Nettoyer les fichiers système macOS
+      shell: |
+        find {{ app_directory }} -name "._*" -type f -delete
+        find {{ app_directory }} -name ".DS_Store" -type f -delete
+      ignore_errors: yes
+
+    - name: Installer les dépendances npm
+      npm:
+        path: "{{ app_directory }}"
+        state: present
+        production: no
+
+    - name: Builder l'application Next.js
+      command: npm run build
+      args:
+        chdir: "{{ app_directory }}"
+      environment:
+        NODE_ENV: production
+
+    - name: Créer le répertoire des logs
+      file:
+        path: "{{ app_directory }}/logs"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Créer le fichier de configuration PM2
+      template:
+        src: ecosystem.config.js.j2
+        dest: "{{ app_directory }}/ecosystem.config.js"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0644'
+
+    - name: Arrêter l'application PM2 si elle existe
+      shell: pm2 delete burgerito || true
+      ignore_errors: yes
+
+    - name: Démarrer l'application avec PM2
+      shell: pm2 start ecosystem.config.js
+      args:
+        chdir: "{{ app_directory }}"
+      become_user: "{{ app_user }}"
+
+    - name: Sauvegarder la configuration PM2
+      shell: pm2 save
+      become_user: "{{ app_user }}"
+
+    - name: Configurer PM2 pour démarrer au boot
+      shell: pm2 startup systemd -u {{ app_user }} --hp /home/{{ app_user }}
+      register: pm2_startup
+      changed_when: "'sudo' in pm2_startup.stdout"
+      become_user: "{{ app_user }}"
+      failed_when: false
+
+    - name: Extraire la commande sudo de PM2
+      set_fact:
+        pm2_sudo_cmd: "{{ pm2_startup.stdout_lines | select('match', 'sudo.*') | list | first | default('') }}"
+
+    - name: Appliquer la configuration systemd pour PM2
+      shell: "{{ pm2_sudo_cmd | regex_replace('^sudo ', '') }}"
+      when: pm2_sudo_cmd != ''
+      become: yes
+      environment:
+        PATH: "{{ ansible_env.PATH }}:/usr/bin"
+
+    - name: Afficher le statut de l'application
+      shell: pm2 status
+      register: pm2_status
+      changed_when: false
+      become_user: "{{ app_user }}"
+
+    - name: Afficher le statut PM2
+      debug:
+        var: pm2_status.stdout_lines
+

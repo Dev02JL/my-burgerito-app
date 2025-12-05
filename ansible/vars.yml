@@ -1,0 +1,30 @@
+---
+# Variables de configuration pour le déploiement
+
+# Utilisateur système pour l'application
+app_user: "kragown"
+
+# Répertoire de déploiement de l'application
+app_directory: "/home/kragown/burgerito"
+
+# Méthode de déploiement: "git" ou "rsync"
+deployment_method: "rsync"
+
+# Configuration Git (si deployment_method == "git")
+git_repository: "https://github.com/votre-username/my-burgerito-app.git"
+git_branch: "main"
+
+# Chemin local de l'application (si deployment_method == "rsync")
+local_app_path: "{{ playbook_dir }}/.."
+
+# Variables d'environnement de l'application
+env_vars:
+  NODE_ENV: "production"
+  NEXT_PUBLIC_API_BASE_URL: "https://node-eemi.vercel.app"
+  PORT: "3000"
+
+# Configuration PM2
+pm2_app_name: "burgerito"
+pm2_instances: 2
+pm2_max_memory: "512M"
+

@@ -1,10 +1,14 @@
+"use client";
+
 import dynamic from "next/dynamic";
+import { use } from "react";
 
 type Params = { params: Promise<{ id: string }> };
 
-export default async function CommandeSuiviPage({ params }: Params) {
-  const { id } = await params;
-  const Tracker = dynamic(() => import("@/components/OrderRealtimeTracker"), { ssr: false });
+const Tracker = dynamic(() => import("@/components/OrderRealtimeTracker"), { ssr: false });
+
+export default function CommandeSuiviPage({ params }: Params) {
+  const { id } = use(params);
   return <Tracker orderId={id} />;
 }
 

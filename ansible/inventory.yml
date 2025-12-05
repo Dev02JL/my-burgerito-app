@@ -1,0 +1,9 @@
+---
+all:
+  hosts:
+    ansible-cicd:
+      ansible_host: 35.187.90.46
+      ansible_user: kragown
+      ansible_ssh_private_key_file: ~/.ssh/google_compute_engine
+      ansible_python_interpreter: /usr/bin/python3
+
