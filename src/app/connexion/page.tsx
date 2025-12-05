@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function ConnexionPage() {
   const router = useRouter();
@@ -16,35 +16,40 @@ export default function ConnexionPage() {
     setLoading(true);
     const root = formRef.current;
     const payload = {
-      email: String(root?.querySelector<HTMLInputElement>("#login-email")?.value || "").trim(),
-      password: String(root?.querySelector<HTMLInputElement>("#login-password")?.value || ""),
+      email: String(root?.querySelector<HTMLInputElement>('#login-email')?.value || '').trim(),
+      password: String(root?.querySelector<HTMLInputElement>('#login-password')?.value || ''),
     };
     try {
       const res = await fetch(`/api/session/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.message || "Connexion échouée");
-      if (typeof window !== "undefined") window.dispatchEvent(new Event("auth:changed"));
+      if (!res.ok) throw new Error(data?.message || 'Connexion échouée');
+      if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth:changed'));
       setOk(true);
-      setTimeout(() => router.push("/"), 500);
+      setTimeout(() => router.push('/'), 500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Erreur inattendue");
+      setError(err instanceof Error ? err.message : 'Erreur inattendue');
     } finally {
       setLoading(false);
     }
   }
   return (
     <main className="container-page py-16">
-      <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight text-center" style={{ fontFamily: "var(--font-display)" }}>
+      <h1
+        className="text-6xl md:text-8xl font-extrabold tracking-tight text-center"
+        style={{ fontFamily: 'var(--font-display)' }}
+      >
         Je me connecte
       </h1>
 
       <div className="mx-auto mt-10 w-full max-w-3xl" ref={formRef}>
         <div className="flex flex-col gap-4">
-          <label className="sr-only" htmlFor="login-email">E-mail</label>
+          <label className="sr-only" htmlFor="login-email">
+            E-mail
+          </label>
           <input
             id="login-email"
             name="email"
@@ -55,7 +60,9 @@ export default function ConnexionPage() {
             autoComplete="email"
             required
           />
-          <label className="sr-only" htmlFor="login-password">Mot de passe</label>
+          <label className="sr-only" htmlFor="login-password">
+            Mot de passe
+          </label>
           <input
             id="login-password"
             name="password"
@@ -69,15 +76,20 @@ export default function ConnexionPage() {
           />
         </div>
         <div className="flex justify-center">
-          <button type="button" onClick={submit} disabled={loading} className="mt-8 h-12 w-[360px] rounded-[12px] btn-accent font-medium disabled:opacity-60">
-            {loading ? "En cours..." : "Connexion"}
+          <button
+            type="button"
+            onClick={submit}
+            disabled={loading}
+            className="mt-8 h-12 w-[360px] rounded-[12px] btn-accent font-medium disabled:opacity-60"
+          >
+            {loading ? 'En cours...' : 'Connexion'}
           </button>
         </div>
         {error ? <p className="mt-4 text-center text-red-400 text-sm">{error}</p> : null}
-        {ok ? <p className="mt-4 text-center text-green-400 text-sm">Connecté ! Redirection...</p> : null}
+        {ok ? (
+          <p className="mt-4 text-center text-green-400 text-sm">Connecté ! Redirection...</p>
+        ) : null}
       </div>
     </main>
   );
 }
-
-

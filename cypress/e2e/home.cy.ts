@@ -1,4 +1,4 @@
-describe('Page d\'accueil', () => {
+describe("Page d'accueil", () => {
   beforeEach(() => {
     cy.visit('/');
     cy.get('body').should('be.visible');
@@ -21,4 +21,3 @@ describe('Page d\'accueil', () => {
     cy.get('a[href="/inscription"]', { timeout: 5000 }).should('exist');
   });
 });
-

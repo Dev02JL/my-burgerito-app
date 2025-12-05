@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useEffect, useMemo, useReducer } from "react";
-import type { JSX } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
+import type { JSX } from 'react';
 
 export type CartItem = {
   id: number;
@@ -13,14 +13,14 @@ export type CartItem = {
 
 type CartState = { items: CartItem[] };
 type Action =
-  | { type: "ADD"; item: Omit<CartItem, "qty">; qty?: number }
-  | { type: "REMOVE"; id: number }
-  | { type: "SET_QTY"; id: number; qty: number }
-  | { type: "CLEAR" };
+  | { type: 'ADD'; item: Omit<CartItem, 'qty'>; qty?: number }
+  | { type: 'REMOVE'; id: number }
+  | { type: 'SET_QTY'; id: number; qty: number }
+  | { type: 'CLEAR' };
 
 function cartReducer(state: CartState, action: Action): CartState {
   switch (action.type) {
-    case "ADD": {
+    case 'ADD': {
       const qtyToAdd = action.qty ?? 1;
       const existing = state.items.find((i) => i.id === action.item.id);
       if (existing) {
@@ -34,7 +34,7 @@ function cartReducer(state: CartState, action: Action): CartState {
         items: [...state.items, { ...action.item, qty: qtyToAdd }],
       };
     }
-    case "SET_QTY": {
+    case 'SET_QTY': {
       const nextQty = Math.max(0, Math.floor(action.qty));
       if (nextQty === 0) {
         return { items: state.items.filter((i) => i.id !== action.id) };
@@ -43,10 +43,10 @@ function cartReducer(state: CartState, action: Action): CartState {
         items: state.items.map((i) => (i.id === action.id ? { ...i, qty: nextQty } : i)),
       };
     }
-    case "REMOVE": {
+    case 'REMOVE': {
       return { items: state.items.filter((i) => i.id !== action.id) };
     }
-    case "CLEAR":
+    case 'CLEAR':
       return { items: [] };
     default:
       return state;
@@ -55,7 +55,7 @@ function cartReducer(state: CartState, action: Action): CartState {
 
 const CartContext = createContext<
   | (CartState & {
-      add: (item: Omit<CartItem, "qty">, qty?: number) => void;
+      add: (item: Omit<CartItem, 'qty'>, qty?: number) => void;
       updateQty: (id: number, qty: number) => void;
       remove: (id: number) => void;
       clear: () => void;
@@ -65,14 +65,14 @@ const CartContext = createContext<
   | null
 >(null);
 
-const STORAGE_KEY = "burgerito.cart.v1";
+const STORAGE_KEY = 'burgerito.cart.v1';
 
 export function CartProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const [state, dispatch] = useReducer(cartReducer, undefined, () => {
-    if (typeof window === "undefined") return { items: [] } as CartState;
+    if (typeof window === 'undefined') return { items: [] } as CartState;
     try {
-      const cookie = document.cookie.split("; ").find((c) => c.startsWith(`${STORAGE_KEY}=`));
-      const raw = cookie ? decodeURIComponent(cookie.split("=")[1] ?? "") : "";
+      const cookie = document.cookie.split('; ').find((c) => c.startsWith(`${STORAGE_KEY}=`));
+      const raw = cookie ? decodeURIComponent(cookie.split('=')[1] ?? '') : '';
       return raw ? (JSON.parse(raw) as CartState) : { items: [] };
     } catch {
       return { items: [] };
@@ -88,10 +88,10 @@ export function CartProvider({ children }: { children: React.ReactNode }): JSX.E
   }, [state]);
 
   const api = useMemo(() => {
-    const add = (item: Omit<CartItem, "qty">, qty?: number) => dispatch({ type: "ADD", item, qty });
-    const updateQty = (id: number, qty: number) => dispatch({ type: "SET_QTY", id, qty });
-    const remove = (id: number) => dispatch({ type: "REMOVE", id });
-    const clear = () => dispatch({ type: "CLEAR" });
+    const add = (item: Omit<CartItem, 'qty'>, qty?: number) => dispatch({ type: 'ADD', item, qty });
+    const updateQty = (id: number, qty: number) => dispatch({ type: 'SET_QTY', id, qty });
+    const remove = (id: number) => dispatch({ type: 'REMOVE', id });
+    const clear = () => dispatch({ type: 'CLEAR' });
     const total = state.items.reduce((sum, i) => sum + i.price * i.qty, 0);
     const count = state.items.reduce((sum, i) => sum + i.qty, 0);
     return { ...state, add, updateQty, remove, clear, total, count };
@@ -102,6 +102,6 @@ export function CartProvider({ children }: { children: React.ReactNode }): JSX.E
 
 export function useCart() {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  if (!ctx) throw new Error('useCart must be used within CartProvider');
   return ctx;
 }

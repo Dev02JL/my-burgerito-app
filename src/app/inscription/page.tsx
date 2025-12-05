@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function InscriptionPage() {
   const router = useRouter();
@@ -16,36 +16,41 @@ export default function InscriptionPage() {
     setLoading(true);
     const root = formRef.current;
     const payload = {
-      name: String(root?.querySelector<HTMLInputElement>("#register-name")?.value || "").trim(),
-      email: String(root?.querySelector<HTMLInputElement>("#register-email")?.value || "").trim(),
-      password: String(root?.querySelector<HTMLInputElement>("#register-password")?.value || ""),
+      name: String(root?.querySelector<HTMLInputElement>('#register-name')?.value || '').trim(),
+      email: String(root?.querySelector<HTMLInputElement>('#register-email')?.value || '').trim(),
+      password: String(root?.querySelector<HTMLInputElement>('#register-password')?.value || ''),
     };
     try {
       const res = await fetch(`/api/session/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.message || "Inscription échouée");
-      if (typeof window !== "undefined") window.dispatchEvent(new Event("auth:changed"));
+      if (!res.ok) throw new Error(data?.message || 'Inscription échouée');
+      if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth:changed'));
       setOk(true);
-      setTimeout(() => router.push("/"), 800);
+      setTimeout(() => router.push('/'), 800);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Erreur inattendue");
+      setError(err instanceof Error ? err.message : 'Erreur inattendue');
     } finally {
       setLoading(false);
     }
   }
   return (
     <main className="container-page py-16">
-      <h1 className="text-6xl md:text-8xl font-extrabold text-center" style={{ fontFamily: "var(--font-display)" }}>
+      <h1
+        className="text-6xl md:text-8xl font-extrabold text-center"
+        style={{ fontFamily: 'var(--font-display)' }}
+      >
         Je m’inscris
       </h1>
 
       <div className="mx-auto mt-10 w-full max-w-3xl" ref={formRef}>
         <div className="flex flex-col gap-4">
-          <label className="sr-only" htmlFor="register-name">Nom</label>
+          <label className="sr-only" htmlFor="register-name">
+            Nom
+          </label>
           <input
             id="register-name"
             name="name"
@@ -59,7 +64,9 @@ export default function InscriptionPage() {
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="sr-only" htmlFor="register-email">E-mail</label>
+              <label className="sr-only" htmlFor="register-email">
+                E-mail
+              </label>
               <input
                 id="register-email"
                 name="email"
@@ -72,7 +79,9 @@ export default function InscriptionPage() {
               />
             </div>
             <div>
-              <label className="sr-only" htmlFor="register-password">Mot de passe</label>
+              <label className="sr-only" htmlFor="register-password">
+                Mot de passe
+              </label>
               <input
                 id="register-password"
                 name="password"
@@ -88,15 +97,20 @@ export default function InscriptionPage() {
           </div>
         </div>
         <div className="flex justify-center">
-          <button type="button" onClick={submit} disabled={loading} className="mt-8 h-12 w-[360px] rounded-[12px] btn-accent font-medium disabled:opacity-60">
-            {loading ? "En cours..." : "Confirmer"}
+          <button
+            type="button"
+            onClick={submit}
+            disabled={loading}
+            className="mt-8 h-12 w-[360px] rounded-[12px] btn-accent font-medium disabled:opacity-60"
+          >
+            {loading ? 'En cours...' : 'Confirmer'}
           </button>
         </div>
         {error ? <p className="mt-4 text-center text-red-400 text-sm">{error}</p> : null}
-        {ok ? <p className="mt-4 text-center text-green-400 text-sm">Compte créé ! Redirection...</p> : null}
+        {ok ? (
+          <p className="mt-4 text-center text-green-400 text-sm">Compte créé ! Redirection...</p>
+        ) : null}
       </div>
     </main>
   );
 }
-
-

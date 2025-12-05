@@ -25,4 +25,3 @@ describe('API Session Routes', () => {
     expect(endpoints.me).toContain('/api/session/me');
   });
 });
-

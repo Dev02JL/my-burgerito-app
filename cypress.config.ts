@@ -1,4 +1,4 @@
-import { defineConfig } from 'cypress'
+import { defineConfig } from 'cypress';
 
 export default defineConfig({
   e2e: {
@@ -9,5 +9,4 @@ export default defineConfig({
       // Configuration des événements Cypress si nécessaire
     },
   },
-})
-
+});

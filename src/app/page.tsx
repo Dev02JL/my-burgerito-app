@@ -1,5 +1,5 @@
-import Image from "next/image";
-import ProductCard, { Product } from "@/components/ProductCard";
+import Image from 'next/image';
+import ProductCard, { Product } from '@/components/ProductCard';
 
 function Hero() {
   return (
@@ -16,9 +16,13 @@ function Hero() {
         </div>
         <div className="relative p-6 sm:p-8">
           <p className="max-w-xl text-sm text-white/80">
-            Lorem ipsum dolor sit amet consectetur. Velit netus tempor mattis sit mauris nunc adipiscing et massa. Maecenas vel facilisis orci turpis nunc.
+            Lorem ipsum dolor sit amet consectetur. Velit netus tempor mattis sit mauris nunc
+            adipiscing et massa. Maecenas vel facilisis orci turpis nunc.
           </p>
-          <h1 className="mt-3 text-5xl sm:text-6xl font-extrabold tracking-tight" style={{ color: "#ffffff", fontFamily: "var(--font-display)" }}>
+          <h1
+            className="mt-3 text-5xl sm:text-6xl font-extrabold tracking-tight"
+            style={{ color: '#ffffff', fontFamily: 'var(--font-display)' }}
+          >
             BURGERITO
           </h1>
         </div>
@@ -26,8 +30,6 @@ function Hero() {
     </section>
   );
 }
-
- 
 
 type ApiProduct = {
   id?: number | string;
@@ -48,21 +50,29 @@ export default async function Home() {
     try {
       const base = process.env.NEXT_PUBLIC_API_BASE_URL;
       const res = await fetch(`${base}/api/products`, { next: { revalidate: 60 } });
-      if (!res.ok) throw new Error("Bad response");
+      if (!res.ok) throw new Error('Bad response');
       const data: ApiList = await res.json();
       const list: ApiProduct[] = Array.isArray(data) ? data : (data?.items ?? []);
       const toPrice = (value: unknown): string => {
-        const num = typeof value === "number" ? value : Number(value);
-        if (!isFinite(num)) return "€7,90";
-        const formatted = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+        const num = typeof value === 'number' ? value : Number(value);
+        if (!isFinite(num)) return '€7,90';
+        const formatted = new Intl.NumberFormat('fr-FR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(num);
         return `€${formatted}`;
       };
-      const toTitle = (item: ApiProduct): string => item?.name ?? item?.title ?? "Burger";
+      const toTitle = (item: ApiProduct): string => item?.name ?? item?.title ?? 'Burger';
       const toImage = (item: ApiProduct): string => {
-        const url = typeof item?.imageUrl === "string" ? item.imageUrl : (typeof item?.image === "string" ? item.image : "");
+        const url =
+          typeof item?.imageUrl === 'string'
+            ? item.imageUrl
+            : typeof item?.image === 'string'
+              ? item.image
+              : '';
         return /^https?:\/\//.test(url)
           ? url
-          : "https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop";
+          : 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop';
       };
 
       return list.map((item: ApiProduct, idx: number) => ({
@@ -76,9 +86,10 @@ export default async function Home() {
     } catch {
       return Array.from({ length: 8 }).map((_, i) => ({
         id: i + 1,
-        title: "Lorem ipsum",
-        price: "€7,90",
-        image: "https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop",
+        title: 'Lorem ipsum',
+        price: '€7,90',
+        image:
+          'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop',
       }));
     }
   }

@@ -1,13 +1,13 @@
-"use client";
-import React from "react";
-import { useEffect, useState, useRef } from "react";
-import Link from "next/link";
-import { useCart } from "@/lib/cart";
-import { ShoppingCart } from "lucide-react";
-import type { JSX } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import MiniCart from "@/components/MiniCart";
+'use client';
+import React from 'react';
+import { useEffect, useState, useRef } from 'react';
+import Link from 'next/link';
+import { useCart } from '@/lib/cart';
+import { ShoppingCart } from 'lucide-react';
+import type { JSX } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import MiniCart from '@/components/MiniCart';
 
 export default function Header(): JSX.Element {
   const router = useRouter();
@@ -21,13 +21,13 @@ export default function Header(): JSX.Element {
   useEffect(() => {
     async function updateUser() {
       try {
-        const res = await fetch(`/api/session/me`, { cache: "no-store" });
+        const res = await fetch(`/api/session/me`, { cache: 'no-store' });
         if (res.status === 401 || res.status === 403) {
           setUserName(null);
           return;
         }
         if (!res.ok) {
-          if (process.env.NODE_ENV !== "production") console.warn("/auth/me a échoué:", res.status);
+          if (process.env.NODE_ENV !== 'production') console.warn('/auth/me a échoué:', res.status);
           return;
         }
         type MeResponse = { user?: { name?: string } } | { name?: string };
@@ -35,30 +35,32 @@ export default function Header(): JSX.Element {
         if ('user' in data && data.user?.name) setUserName(data.user.name);
         else if ('name' in data && data.name) setUserName(data.name);
       } catch (err) {
-        if (process.env.NODE_ENV !== "production") console.warn("/auth/me erreur réseau:", err);
+        if (process.env.NODE_ENV !== 'production') console.warn('/auth/me erreur réseau:', err);
       }
     }
 
     updateUser();
-    const onAuthChanged = () => { void updateUser(); };
-    window.addEventListener("auth:changed", onAuthChanged);
+    const onAuthChanged = () => {
+      void updateUser();
+    };
+    window.addEventListener('auth:changed', onAuthChanged);
     const onCart = () => {
       setIsMiniCartOpen(true);
       if (autoCloseTimer.current) window.clearTimeout(autoCloseTimer.current);
       autoCloseTimer.current = window.setTimeout(() => setIsMiniCartOpen(false), 3000);
     };
-    window.addEventListener("cart:added", onCart);
+    window.addEventListener('cart:added', onCart);
     return () => {
-      window.removeEventListener("auth:changed", onAuthChanged);
-      window.removeEventListener("cart:added", onCart);
+      window.removeEventListener('auth:changed', onAuthChanged);
+      window.removeEventListener('cart:added', onCart);
       if (autoCloseTimer.current) window.clearTimeout(autoCloseTimer.current);
     };
   }, []);
 
   function logout() {
-    fetch("/api/session/logout", { method: "POST" }).finally(() => {
+    fetch('/api/session/logout', { method: 'POST' }).finally(() => {
       setUserName(null);
-      window.dispatchEvent(new Event("auth:changed"));
+      window.dispatchEvent(new Event('auth:changed'));
       router.refresh();
     });
   }
@@ -84,21 +86,28 @@ export default function Header(): JSX.Element {
                 }
               }}
             >
-            <ShoppingCart size={18} className="text-white" />
-            {mounted && count > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#ef4444] text-white text-[10px] leading-[18px] text-center">
-                {count}
-              </span>
-            )}
+              <ShoppingCart size={18} className="text-white" />
+              {mounted && count > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#ef4444] text-white text-[10px] leading-[18px] text-center">
+                  {count}
+                </span>
+              )}
             </Link>
             <MiniCart open={isMiniCartOpen} onClose={() => setIsMiniCartOpen(false)} />
           </div>
           {userName ? (
             <div className="flex items-center gap-2">
-              <Link href="/profile" className="h-9 rounded-md px-3 text-sm inline-flex items-center bg-white/10 text-white hover:bg-white/20 transition" title="Voir mon profil">
+              <Link
+                href="/profile"
+                className="h-9 rounded-md px-3 text-sm inline-flex items-center bg-white/10 text-white hover:bg-white/20 transition"
+                title="Voir mon profil"
+              >
                 {userName}
               </Link>
-              <button onClick={logout} className="h-9 rounded-md px-3 text-sm inline-flex items-center transition bg-white/20 text-white hover:bg-white/30">
+              <button
+                onClick={logout}
+                className="h-9 rounded-md px-3 text-sm inline-flex items-center transition bg-white/20 text-white hover:bg-white/30"
+              >
                 Déconnexion
               </button>
             </div>
@@ -111,7 +120,10 @@ export default function Header(): JSX.Element {
               >
                 Inscription
               </Link>
-              <Link href="/connexion" className="h-9 rounded-md px-4 text-sm btn-accent font-medium inline-flex items-center">
+              <Link
+                href="/connexion"
+                className="h-9 rounded-md px-4 text-sm btn-accent font-medium inline-flex items-center"
+              >
                 Connexion
               </Link>
             </>
@@ -121,5 +133,3 @@ export default function Header(): JSX.Element {
     </header>
   );
 }
-
-
