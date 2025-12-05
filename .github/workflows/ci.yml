@@ -23,11 +23,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Format check
+        run: npm run format:check
+        continue-on-error: false
+
       - name: Run unit tests
         run: npm test
+        continue-on-error: false
 
       - name: Run API tests
         run: npm run test:api
+        continue-on-error: false
 
       - name: Run E2E tests
         run: npm run test:e2e:build
@@ -35,4 +45,29 @@ jobs:
           CYPRESS_BASE_URL: http://localhost:3000
           PORT: 3000
           NODE_ENV: production
+        continue-on-error: false
+
+      - name: Upload Cypress videos
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          retention-days: 7
+
+      - name: Upload Cypress screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          retention-days: 7
+
+      - name: Upload Jest coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jest-coverage
+          path: coverage
+          retention-days: 7
 

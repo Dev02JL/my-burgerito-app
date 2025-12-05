@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+build
+coverage
+.vercel
+*.lock
+package-lock.json
+cypress/videos
+cypress/screenshots
+
