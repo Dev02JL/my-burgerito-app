@@ -7,10 +7,12 @@ export const config = {
 	},
 };
 
+type UpgradeHandler = (req: unknown, socket: unknown, head: unknown) => void;
+
 type ServerWithWSS = NextApiResponse["socket"] & {
 	server: {
 		wss?: WebSocketServer;
-		on: (event: "upgrade", cb: (req: any, socket: any, head: any) => void) => void;
+		on: (event: "upgrade", cb: UpgradeHandler) => void;
 	};
 };
 
@@ -20,7 +22,7 @@ function setupWSS(res: NextApiResponse) {
 
 	const wss = new WebSocketServer({ noServer: true });
 
-	srv.server.on("upgrade", (req: any, socket: any, head: any) => {
+	srv.server.on("upgrade", (req: unknown, socket: unknown, head: unknown) => {
 		if (req.url !== "/api/socket") return;
 		wss.handleUpgrade(req, socket, head, (ws) => {
 			wss.emit("connection", ws, req);

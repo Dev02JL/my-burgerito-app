@@ -20,6 +20,16 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    rules: {
+      "@typescript-eslint/no-empty-object-type": [
+        "error",
+        {
+          allowInterfaces: "always",
+        },
+      ],
+    },
+  },
 ];
 
 export default eslintConfig;

@@ -32,8 +32,8 @@ export default function Header(): JSX.Element {
         }
         type MeResponse = { user?: { name?: string } } | { name?: string };
         const data: MeResponse = await res.json().catch(() => ({}) as MeResponse);
-        if ((data as any)?.user?.name) setUserName((data as any).user.name);
-        else if ((data as any)?.name) setUserName((data as any).name);
+        if ('user' in data && data.user?.name) setUserName(data.user.name);
+        else if ('name' in data && data.name) setUserName(data.name);
       } catch (err) {
         if (process.env.NODE_ENV !== "production") console.warn("/auth/me erreur réseau:", err);
       }

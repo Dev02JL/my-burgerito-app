@@ -5,7 +5,8 @@ export default defineConfig({
     baseUrl: 'http://localhost:3000',
     video: true,
     screenshotOnRunFailure: true,
-    setupNodeEvents(on, config) {
+    setupNodeEvents() {
+      // Configuration des événements Cypress si nécessaire
     },
   },
 })

@@ -37,8 +37,6 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const base = "";
-
     async function load() {
       try {
         const res = await fetch(`/api/proxy/orders/me`, { cache: "no-store" });
