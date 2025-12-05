@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import type { IncomingMessage } from 'http';
+import type { Duplex } from 'stream';
 import { WebSocketServer, type WebSocket } from 'ws';
 
 export const config = {
@@ -7,7 +9,7 @@ export const config = {
   },
 };
 
-type UpgradeHandler = (req: unknown, socket: unknown, head: unknown) => void;
+type UpgradeHandler = (req: IncomingMessage, socket: Duplex, head: Buffer) => void;
 
 type ServerWithWSS = NextApiResponse['socket'] & {
   server: {
@@ -22,7 +24,7 @@ function setupWSS(res: NextApiResponse) {
 
   const wss = new WebSocketServer({ noServer: true });
 
-  srv.server.on('upgrade', (req: unknown, socket: unknown, head: unknown) => {
+  srv.server.on('upgrade', (req: IncomingMessage, socket: Duplex, head: Buffer) => {
     if (req.url !== '/api/socket') return;
     wss.handleUpgrade(req, socket, head, (ws) => {
       wss.emit('connection', ws, req);
