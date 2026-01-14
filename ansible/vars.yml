@@ -28,3 +28,8 @@ pm2_app_name: "burgerito"
 pm2_instances: 2
 pm2_max_memory: "512M"
 
+# Configuration Nginx
+nginx_server_name: "_"  # "_" pour accepter tous les domaines, ou spécifier un domaine comme "burgerito.example.com"
+nginx_config_file: "/etc/nginx/sites-available/burgerito"
+nginx_enabled: true
+

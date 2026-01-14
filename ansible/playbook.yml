@@ -18,6 +18,7 @@
           - curl
           - git
           - build-essential
+          - nginx
         state: present
       when: ansible_os_family == "Debian"
 
@@ -191,4 +192,56 @@
     - name: Afficher le statut PM2
       debug:
         var: pm2_status.stdout_lines
+
+    # Configuration Nginx
+    - name: Créer le fichier de configuration Nginx
+      template:
+        src: nginx-burgerito.conf.j2
+        dest: "{{ nginx_config_file }}"
+        owner: root
+        group: root
+        mode: '0644'
+      notify: reload nginx
+
+    - name: Créer le lien symbolique pour activer le site Nginx
+      file:
+        src: "{{ nginx_config_file }}"
+        dest: "/etc/nginx/sites-enabled/burgerito"
+        state: link
+      when: nginx_enabled
+      notify: reload nginx
+
+    - name: Supprimer le site par défaut Nginx
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: reload nginx
+
+    - name: Tester la configuration Nginx
+      command: nginx -t
+      register: nginx_test
+      changed_when: false
+      failed_when: nginx_test.rc != 0
+
+    - name: Démarrer et activer Nginx
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Afficher le statut Nginx
+      systemd:
+        name: nginx
+      register: nginx_status
+      changed_when: false
+
+    - name: Afficher le statut Nginx
+      debug:
+        msg: "Nginx est {{ 'actif' if nginx_status.status.ActiveState == 'active' else 'inactif' }}"
+
+  handlers:
+    - name: reload nginx
+      systemd:
+        name: nginx
+        state: reloaded
 
