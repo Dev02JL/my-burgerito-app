@@ -13,25 +13,30 @@ Nginx est configuré comme reverse proxy devant l'application Next.js qui tourne
 ## Fonctionnalités
 
 ### 1. Reverse Proxy
+
 - Proxy vers `http://127.0.0.1:3000` (application Next.js)
 - Headers HTTP correctement transmis (X-Real-IP, X-Forwarded-For, etc.)
 
 ### 2. Support WebSocket
+
 - Route `/api/socket` configurée pour le chat temps réel
 - Headers `Upgrade` et `Connection` gérés correctement
 - Timeouts étendus (3600s) pour maintenir les connexions longues
 
 ### 3. Support SSE (Server-Sent Events)
+
 - Route `/api/order-status` configurée pour le suivi de commande en temps réel
 - Buffering désactivé pour permettre le streaming
 - Headers Cache-Control appropriés
 
 ### 4. Optimisations
+
 - Cache pour les assets statiques (30 jours)
 - Buffering optimisé pour les requêtes normales
 - Taille maximale d'upload : 10M
 
 ### 5. Sécurité
+
 - Version Nginx masquée (`server_tokens off`)
 - Headers de sécurité :
   - `X-Frame-Options: SAMEORIGIN`
@@ -43,8 +48,8 @@ Nginx est configuré comme reverse proxy devant l'application Next.js qui tourne
 Dans `vars.yml` :
 
 ```yaml
-nginx_server_name: "_"  # "_" pour tous les domaines, ou un domaine spécifique
-nginx_config_file: "/etc/nginx/sites-available/burgerito"
+nginx_server_name: '_' # "_" pour tous les domaines, ou un domaine spécifique
+nginx_config_file: '/etc/nginx/sites-available/burgerito'
 nginx_enabled: true
 ```
 
@@ -57,6 +62,7 @@ ansible-playbook -i inventory.yml playbook.yml
 ```
 
 Les tâches Ansible :
+
 1. Installent Nginx
 2. Créent le fichier de configuration depuis le template
 3. Activent le site (créent le lien symbolique)
@@ -93,10 +99,10 @@ Pour ajouter HTTPS avec Let's Encrypt, ajouter dans le template :
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
-    
+
     ssl_certificate /etc/letsencrypt/live/votre-domaine.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/votre-domaine.com/privkey.pem;
-    
+
     # ... reste de la configuration
 }
 
